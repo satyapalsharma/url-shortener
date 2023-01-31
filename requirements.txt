@@ -1,0 +1,19 @@
+Flask~=2.3.3
+# The core web framework for building the application.
+
+Flask-SQLAlchemy~=3.1.1
+# Flask extension for integrating SQLAlchemy, an ORM, to manage database interactions
+# (e.g., with SQLite as specified in the project context).
+
+python-dotenv~=1.0.0
+# Used for loading environment variables from a .env file into the application's
+# configuration, which is crucial for managing sensitive data like secret keys
+# and database paths in a production-ready manner.
+
+shortuuid~=1.0.11
+# A library to generate short, unambiguous, URL-safe UUIDs. This will be used
+# to create the unique short codes for the URLs.
+
+gunicorn~=21.2.0
+# A production-ready WSGI HTTP server for deploying Flask applications.
+# Essential for running the application in a production environment.
