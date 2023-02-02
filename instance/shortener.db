@@ -1,0 +1,36 @@
+-- Schema for the URL Shortener database.
+-- This SQL defines the tables and their structure.
+
+-- Table to store the original URLs and their generated short codes.
+-- 'id' is the primary key, auto-incrementing for unique identification.
+-- 'original_url' stores the full URL that needs to be shortened.
+-- 'short_code' is the unique, short identifier for the URL.
+-- 'created_at' records when the short URL was created.
+CREATE TABLE IF NOT EXISTS url (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    original_url TEXT NOT NULL,
+    short_code TEXT UNIQUE NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Table to store analytics data for each time a short URL is clicked.
+-- 'id' is the primary key, auto-incrementing.
+-- 'url_id' links to the 'url' table, indicating which short URL was clicked.
+-- 'timestamp' records when the click occurred.
+-- 'ip_address' stores the IP address of the client who clicked, for basic analytics.
+-- 'user_agent' stores the user agent string, for device/browser analytics.
+-- FOREIGN KEY ensures referential integrity and allows cascading deletes.
+CREATE TABLE IF NOT EXISTS click (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    url_id INTEGER NOT NULL,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    ip_address TEXT,
+    user_agent TEXT,
+    FOREIGN KEY (url_id) REFERENCES url (id) ON DELETE CASCADE
+);
+
+-- Index for faster lookup of URLs by their short code.
+CREATE INDEX IF NOT EXISTS idx_short_code ON url (short_code);
+
+-- Index for faster lookup of clicks associated with a specific URL.
+CREATE INDEX IF NOT EXISTS idx_click_url_id ON click (url_id);
