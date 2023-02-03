@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{#
+    templates/index.html
+
+    This template provides the main interface for users to shorten URLs.
+    It includes a form for submitting a long URL and an optional custom short code.
+    Flash messages are displayed to provide feedback to the user (e.g., success, error).
+#}
+
+{% block title %}Shorten Your URL{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="page-title">URL Shortener</h1>
+    <p class="lead">Paste your long URL below to get a short, shareable link.</p>
+
+    {#
+        Flash Messages Section:
+        Displays any messages flashed by the Flask application (e.g., success, error, info).
+        Messages are rendered with a category to allow for different styling (e.g., 'success' for green, 'danger' for red).
+    #}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages" role="alert" aria-live="polite">
+                {% for category, message in messages %}
+                    {#
+                        The 'alert' and 'alert-{{ category }}' classes are expected to be defined
+                        in static/css/style.css to provide appropriate styling for different message types.
+                    #}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    {#
+        URL Shortening Form:
+        This form allows users to submit a long URL and optionally a custom short code.
+        - The 'action' attribute points to the Flask endpoint responsible for processing the URL shortening request.
+        - The 'method' is POST to send form data securely.
+    #}
+    <form action="{{ url_for('shorten_url') }}" method="POST" class="shorten-form">
+        <div class="form-group">
+            <label for="long_url" class="form-label">Long URL</label>
+            {#
+                Input for the long URL.
+                - 'type="url"' provides client-side validation for URL format.
+                - 'required' ensures the field cannot be empty.
+                - 'aria-describedby' links the input to a descriptive text for accessibility.
+            #}
+            <input type="url" id="long_url" name="long_url" class="form-control"
+                   placeholder="e.g., https://www.example.com/very/long/path/to/resource"
+                   required
+                   aria-describedby="urlHelp">
+            <small id="urlHelp" class="form-text text-muted">Enter the full URL you want to shorten.</small>
+        </div>
+
+        <div class="form-group">
+            <label for="custom_code" class="form-label">Custom Short Code (Optional)</label>
+            {#
+                Input for an optional custom short code.
+                - 'pattern' provides client-side validation for allowed characters (alphanumeric, hyphens, underscores).
+                - 'title' provides a tooltip for the pattern validation.
+                - 'aria-describedby' links the input to a descriptive text for accessibility.
+            #}
+            <input type="text" id="custom_code" name="custom_code" class="form-control"
+                   placeholder="e.g., my-awesome-link"
+                   pattern="[a-zA-Z0-9_-]+"
+                   title="Only letters, numbers, hyphens, and underscores are allowed."
+                   aria-describedby="customCodeHelp">
+            <small id="customCodeHelp" class="form-text text-muted">Choose a custom, memorable short code. If left blank, one will be generated automatically.</small>
+        </div>
+
+        {#
+            Submit button for the form.
+            - 'btn', 'btn-primary', 'btn-block' classes are expected to be defined in static/css/style.css
+              for styling the button.
+        #}
+        <button type="submit" class="btn btn-primary btn-block">Shorten URL</button>
+    </form>
+
+    {#
+        Future Enhancements (Optional):
+        This section could be used to display recent shortened URLs,
+        popular links, or other relevant information.
+        For this project, the primary focus of index.html is the shortening form.
+        Analytics and specific shortened URL details are handled by other templates.
+    #}
+
+</div>
+{% endblock %}

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {#
+        Dynamic title block. Child templates can override this block
+        to set their specific page title. Defaults to "URL Shortener".
+    #}
+    <title>{% block title %}URL Shortener{% endblock %}</title>
+
+    {#
+        Link to the main stylesheet.
+        url_for('static', filename='...') is the standard Flask way to link static files.
+    #}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    {#
+        Favicon link. It's good practice to include one.
+        Assuming a favicon.ico exists in the static directory.
+    #}
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+
+    {#
+        This block allows child templates to inject additional content into the <head> section,
+        e.g., specific CSS for a page, meta tags, or external library links.
+    #}
+    {% block head_extra %}{% endblock %}
+</head>
+<body>
+    {#
+        Main header section containing the navigation bar.
+        Provides consistent branding and navigation across the site.
+    #}
+    <header>
+        <nav class="navbar">
+            <div class="container">
+                {# Brand link, typically leads back to the homepage #}
+                <a href="{{ url_for('index') }}" class="navbar-brand">🔗 URL Shortener</a>
+                {# Navigation links #}
+                <ul class="navbar-nav">
+                    <li class="nav-item"><a href="{{ url_for('index') }}" class="nav-link">Home</a></li>
+                    {#
+                        Link to the analytics dashboard.
+                        Assumes a route named 'analytics_dashboard' exists in app.py.
+                    #}
+                    <li class="nav-item"><a href="{{ url_for('analytics_dashboard') }}" class="nav-link">Analytics</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    {#
+        Main content area.
+        The 'container' class is typically used for responsive layout and centering content.
+    #}
+    <main class="container">
+        {#
+            Flash messages section.
+            This iterates through any messages flashed by Flask (e.g., success, error, info messages)
+            and displays them to the user. 'with_categories=true' allows styling based on message type.
+        #}
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        {#
+                            The 'alert alert-{{ category }}' classes assume a CSS framework
+                            (or custom CSS) that styles alerts based on categories like 'success', 'error', 'info'.
+                        #}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        {#
+            This is the main content block where child templates will inject their specific HTML.
+            All page-specific content should go inside this block in extending templates.
+        #}
+        {% block content %}{% endblock %}
+    </main>
+
+    {#
+        Footer section.
+        Contains copyright information and other general site links/info.
+    #}
+    <footer>
+        <div class="container">
+            {# Dynamic year for copyright, using a hardcoded year for simplicity. #}
+            <p>&copy; 2024 URL Shortener. All rights reserved.</p>
+            <p>Built with Flask & ❤️</p>
+        </div>
+    </footer>
+
+    {#
+        Link to the main JavaScript file.
+        Placing scripts at the end of the <body> helps improve page load performance
+        by allowing HTML and CSS to render first.
+    #}
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+    {#
+        This block allows child templates to inject additional JavaScript,
+        e.g., page-specific scripts or external JS libraries.
+    #}
+    {% block scripts_extra %}{% endblock %}
+</body>
+</html>
