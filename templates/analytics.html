@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics for {{ short_url_obj.short_code }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    {# Page Header: Display the short URL and make it clickable #}
+    <h1 class="mb-4">Analytics for
+        <a href="{{ url_for('redirect_to_original', short_code=short_url_obj.short_code) }}" target="_blank" class="text-primary text-decoration-none">
+            {{ request.url_root }}{{ short_url_obj.short_code }}
+        </a>
+    </h1>
+
+    {# Display the original URL associated with the short code #}
+    <p class="lead">Original URL:
+        <a href="{{ short_url_obj.original_url }}" target="_blank" class="text-break">
+            {{ short_url_obj.original_url }}
+        </a>
+    </p>
+
+    {# Card to prominently display the total number of clicks #}
+    <div class="card mb-4 shadow-sm">
+        <div class="card-body text-center">
+            <h2 class="card-title">Total Clicks</h2>
+            <p class="card-text display-4 font-weight-bold">{{ short_url_obj.total_clicks }}</p>
+        </div>
+    </div>
+
+    {# Section for detailed click history #}
+    <h3 class="mt-5 mb-3">Click History</h3>
+
+    {% if clicks %}
+    {# Table to display individual click details if clicks exist #}
+    <div class="table-responsive">
+        <table class="table table-striped table-hover">
+            <thead class="thead-dark">
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Timestamp (UTC)</th>
+                    <th scope="col">IP Address</th>
+                    <th scope="col">Referrer</th>
+                    <th scope="col">User Agent</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for click in clicks %}
+                <tr>
+                    <th scope="row">{{ loop.index }}</th>
+                    {# Format timestamp for readability #}
+                    <td>{{ click.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                    <td>
+                        {% if click.ip_address %}
+                            {{ click.ip_address }}
+                            {#
+                                PRODUCTION NOTE: For privacy compliance (e.g., GDPR), consider anonymizing
+                                IP addresses before storing or displaying them.
+                                Example: {{ click.ip_address.rsplit('.', 1)[0] }}.XXX
+                                Or store only a hashed version.
+                            #}
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if click.referrer %}
+                            {# Display referrer, truncate if too long, and make it clickable #}
+                            <a href="{{ click.referrer }}" target="_blank" class="text-truncate" style="max-width: 200px; display: inline-block;" title="{{ click.referrer }}">
+                                {{ click.referrer }}
+                            </a>
+                        {% else %}
+                            Direct / Unknown
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if click.user_agent %}
+                            {# Display user agent, truncate for table readability, full text on hover #}
+                            <span title="{{ click.user_agent }}">{{ click.user_agent | truncate(50, True) }}</span>
+                        {% else %}
+                            Unknown
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    {# Message displayed if there are no clicks recorded yet #}
+    <div class="alert alert-info" role="alert">
+        No clicks recorded for this short URL yet. Share it to start collecting data!
+    </div>
+    {% endif %}
+
+    {# Navigation buttons #}
+    <div class="mt-4">
+        <a href="{{ url_for('index') }}" class="btn btn-secondary me-2">Back to Home</a>
+        <a href="{{ url_for('show_shortened', short_code=short_url_obj.short_code) }}" class="btn btn-info">View Shortened URL Details</a>
+    </div>
+</div>
+{% endblock %}

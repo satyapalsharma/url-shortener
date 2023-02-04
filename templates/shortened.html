@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}Your Shortened URL{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white text-center">
+                    <h4 class="mb-0">Your URL has been shortened!</h4>
+                </div>
+                <div class="card-body p-4">
+                    <p class="lead text-center">Here's your new short URL:</p>
+                    <div class="input-group mb-3">
+                        <!-- Display the shortened URL. The 'url_for' function generates the full URL for the 'redirect_to_long_url' endpoint,
+                             using the 'short_code' passed from the Flask backend. -->
+                        <input type="text" class="form-control form-control-lg text-center" id="shortUrlInput"
+                               value="{{ url_for('redirect_to_long_url', short_code=short_url.short_code, _external=True) }}"
+                               readonly aria-label="Shortened URL">
+                        <button class="btn btn-outline-secondary" type="button" id="copyButton"
+                                data-bs-toggle="tooltip" data-bs-placement="top" title="Copy to clipboard">
+                            <i class="bi bi-clipboard"></i> Copy
+                        </button>
+                    </div>
+                    <p class="text-muted text-center small">
+                        Original URL: <a href="{{ short_url.long_url }}" target="_blank" rel="noopener noreferrer">{{ short_url.long_url }}</a>
+                    </p>
+
+                    <hr>
+
+                    <div class="d-grid gap-2">
+                        <!-- Link to view analytics for this specific short URL -->
+                        <a href="{{ url_for('analytics', short_code=short_url.short_code) }}" class="btn btn-info btn-sm">
+                            <i class="bi bi-graph-up"></i> View Analytics for this URL
+                        </a>
+                        <!-- Link back to the homepage to shorten another URL -->
+                        <a href="{{ url_for('index') }}" class="btn btn-secondary btn-sm">
+                            <i class="bi bi-arrow-left-circle"></i> Shorten Another URL
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const copyButton = document.getElementById('copyButton');
+        const shortUrlInput = document.getElementById('shortUrlInput');
+
+        // Initialize Bootstrap tooltips
+        const tooltip = new bootstrap.Tooltip(copyButton);
+
+        copyButton.addEventListener('click', function() {
+            // Select the text in the input field
+            shortUrlInput.select();
+            shortUrlInput.setSelectionRange(0, 99999); // For mobile devices
+
+            try {
+                // Copy the selected text to the clipboard
+                document.execCommand('copy');
+
+                // Update tooltip text to indicate success
+                copyButton.setAttribute('data-bs-original-title', 'Copied!');
+                tooltip.update(); // Re-render the tooltip with new title
+                tooltip.show(); // Show the tooltip immediately
+
+                // Reset tooltip text after a short delay
+                setTimeout(() => {
+                    copyButton.setAttribute('data-bs-original-title', 'Copy to clipboard');
+                    tooltip.update();
+                    tooltip.hide(); // Hide the tooltip
+                }, 2000);
+
+            } catch (err) {
+                console.error('Failed to copy text: ', err);
+                // Optionally, provide a fallback or error message to the user
+                alert('Failed to copy the URL. Please copy it manually: ' + shortUrlInput.value);
+            }
+        });
+
+        // Optional: Add a click handler to the input field to select text on click
+        shortUrlInput.addEventListener('click', function() {
+            this.select();
+        });
+    });
+</script>
+{% endblock %}
